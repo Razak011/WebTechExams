@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        /* Background image styling */
+        body {
+            background-image: url('management.jpg'); /* Replace with your image path */
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            font-family: 'Cascadia Mono',monospace;
+            color: white; /* Ensure the text is visible on the background */
+        }
+
+        header {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2em;
+        }
+
+        #registration-form {
+            margin-top: 50px;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background for form */
+            padding: 30px;
+            border-radius: 10px;
+            width: 400px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin-right: 10px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Register</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="registration-form">
+        <form id="register-form">
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="preferences">Event Preferences:</label>
+            <select id="preferences" name="preferences" required>
+                <option value="workshop">Workshop</option>
+                <option value="seminar">Seminar</option>
+                <option value="club">Club Activity</option>
+            </select>
+
+            <button type="submit">Register</button>
+        </form>
+    </section>
+
+    <script>
+        document.getElementById('register-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Capture form data
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const preferences = document.getElementById('preferences').value;
+
+            // Retrieve existing users from localStorage or initialize an empty array
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+
+            // Check if email already exists
+            if (users.some(user => user.email === email)) {
+                alert('This email is already registered. Please log in.');
+                return;
+            }
+
+            // Add new user to the array
+            users.push({ name, email, password, preferences });
+
+            // Save updated users back to localStorage
+            localStorage.setItem('users', JSON.stringify(users));
+
+            // Show success message and redirect to event list
+            alert('Registration successful!');
+            window.location.href = 'event-list.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        /* Background image styling */
+        body {
+            background-image: url('management.jpg'); /* Replace with your image path */
+            background-size: cover; /* Ensures the image covers the entire screen */
+            background-position: center center; /* Centers the image */
+            background-attachment: fixed; /* Fixes the background image during scroll */
+            color: white; /* Makes the text color white for better contrast with the background */
+            font-family: 'Cascadia Mono',monospace;
+        }
+
+        /* Additional styling for header, footer, and form */
+        header {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background for header */
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2em;
+        }
+
+        #user-login-form {
+            background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background for the form */
+            padding: 30px;
+            border-radius: 8px;
+            width: 300px;
+            margin: 50px auto;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #137fd1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #137fd1; /* Darker green on hover */
+        }
+
+        .back-home-button {
+            background-color: #007bff;
+            padding: 10px 20px;
+            text-align: center;
+            margin: 20px 0;
+            display: block;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+        .back-home-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>User Login</h1>
+        <!-- Back to Home Button -->
+        <a href="index.html" class="back-home-button">Back to Home</a>
+    </header>
+
+    <main>
+        <section id="user-login-form">
+            <form id="login-form">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+
+                <button type="submit">Login</button>
+            </form>
+        </section>
+    </main>
+
+    <script type="module">
+        // Import Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKF0zZaovZxNxiSlRLXRDJX5p1z8NBSK8",
+            authDomain: "webtech-ffc13.firebaseapp.com",
+            projectId: "webtech-ffc13",
+            storageBucket: "webtech-ffc13.firebasestorage.app",
+            messagingSenderId: "246366752072",
+            appId: "1:246366752072:web:b6c3af8030192f9cb3777d",
+            measurementId: "G-DCTBJFS4LJ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Login Form Event Listener
+        document.getElementById('login-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Firebase sign-in
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    alert('Login successful!');
+                    localStorage.setItem('loggedInUser', JSON.stringify(user)); // Save user to localStorage
+                    window.location.href = 'event-list.html'; // Redirect to event list and RSVP page
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    alert(`Login failed: ${errorMessage}`);
+                });
+        });
+    </script>
+</body>
+</html>

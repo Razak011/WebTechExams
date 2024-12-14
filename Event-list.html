@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event List & RSVP</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@3.2.0/dist/fullcalendar.min.css" rel="stylesheet">
+
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@3.2.0/dist/fullcalendar.min.js"></script>
+
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+      import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCKF0zZaovZxNxiSlRLXRDJX5p1z8NBSK8",
+        authDomain: "webtech-ffc13.firebaseapp.com",
+        projectId: "webtech-ffc13",
+        storageBucket: "webtech-ffc13.firebasestorage.app",
+        messagingSenderId: "246366752072",
+        appId: "1:246366752072:web:b6c3af8030192f9cb3777d",
+        measurementId: "G-DCTBJFS4LJ"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // Load events from Firebase
+      async function loadEvents() {
+          const eventsRef = collection(db, "events");
+          const querySnapshot = await getDocs(eventsRef);
+          const events = [];
+
+          querySnapshot.forEach((doc) => {
+              const event = doc.data();
+              event.id = doc.id; // Add event id to each event
+              events.push(event);
+          });
+
+          const eventContainer = document.getElementById('event-container');
+          const calendarEvents = events.map(event => {
+              const eventCard = document.createElement('div');
+              eventCard.classList.add('event-card');
+              eventCard.innerHTML = `
+                  <h3>${event.name}</h3>
+                  <p>Date: ${event.date}</p>
+                  <p>Location: ${event.location}</p>
+                  <p>Description: ${event.description}</p>
+                  <p>Remaining Seats: ${event.remainingSeats}</p>
+                  <button onclick="rsvpEvent('${event.id}')">RSVP</button>
+              `;
+              eventContainer.appendChild(eventCard);
+
+              return {
+                  title: event.name,
+                  start: event.date,
+                  description: event.description,
+                  location: event.location,
+                  remainingSeats: event.remainingSeats,
+                  type: event.type,
+                  id: event.id
+              };
+          });
+
+          // Initialize the calendar with events
+          $('#calendar').fullCalendar({
+              events: calendarEvents,
+              header: {
+                  left: 'prev,next today',
+                  center: 'title',
+                  right: 'month,agendaWeek,agendaDay'
+              },
+              eventClick: function(event) {
+                  alert('Event: ' + event.title);
+              }
+          });
+      }
+
+      // RSVP for an event
+      function rsvpEvent(eventId) {
+          const eventsRef = collection(db, "events");
+          getDocs(eventsRef).then(querySnapshot => {
+              const events = [];
+              querySnapshot.forEach((doc) => {
+                  const event = doc.data();
+                  event.id = doc.id;
+                  events.push(event);
+              });
+
+              const event = events.find(e => e.id === eventId);
+
+              if (event) {
+                  if (event.remainingSeats > 0) {
+                      event.remainingSeats -= 1;
+                      // Update the event in Firebase here (you can implement update logic as needed)
+                      alert('RSVP successful!');
+                      location.reload(); // Refresh the event list
+                  } else {
+                      alert('Sorry, no seats available for this event!');
+                  }
+              } else {
+                  alert('Event not found!');
+              }
+          });
+      }
+
+      // Filter events based on the selected category
+      async function filterEvents() {
+          const filter = document.getElementById('event-filter').value;
+          const eventsRef = collection(db, "events");
+          const querySnapshot = await getDocs(eventsRef);
+          const events = [];
+
+          querySnapshot.forEach((doc) => {
+              const event = doc.data();
+              if (filter === 'all' || event.type === filter) {
+                  events.push(event);
+              }
+          });
+
+          // Clear current event list
+          document.getElementById('event-container').innerHTML = '';
+
+          // Display filtered events
+          events.forEach(event => {
+              const eventCard = document.createElement('div');
+              eventCard.classList.add('event-card');
+              eventCard.innerHTML = `
+                  <h3>${event.name}</h3>
+                  <p>Date: ${event.date}</p>
+                  <p>Location: ${event.location}</p>
+                  <p>Description: ${event.description}</p>
+                  <p>Remaining Seats: ${event.remainingSeats}</p>
+                  <button onclick="rsvpEvent('${event.id}')">RSVP</button>
+              `;
+              document.getElementById('event-container').appendChild(eventCard);
+          });
+
+          // Update the calendar with filtered events
+          $('#calendar').fullCalendar('removeEvents');
+          $('#calendar').fullCalendar('addEventSource', events);
+      }
+
+      // Load events when the page loads
+      window.onload = loadEvents;
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Event List & RSVP</h1>
+        <nav>
+            <ul>
+                <li><a href="create-event.html">Create Event</a></li>
+                <li><a href="index.html">Home</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="calendar-container">
+            <h2>Event Calendar</h2>
+            <div id="calendar"></div>
+
+            <label for="event-filter">Filter by Event:</label>
+            <select id="event-filter" onchange="filterEvents()">
+                <option value="all">All Events</option>
+                <option value="workshop">Workshop</option>
+                <option value="seminar">Seminar</option>
+                <option value="conference">Conference</option>
+            </select>
+        </section>
+
+        <section id="event-list">
+            <h2>Available Events</h2>
+            <div id="event-container"></div>
+        </section>
+    </main>
+</body>
+</html>

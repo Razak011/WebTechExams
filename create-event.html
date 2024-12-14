@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Event</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Create New Event</h1>
+        <a href="index.html" class="home-button">Home</a> <!-- Button linking to the homepage -->
+    </header>
+
+    <main>
+        <form id="create-event-form">
+            <label for="event-name">Event Name:</label>
+            <input type="text" id="event-name" required>
+
+            <label for="event-date">Event Date:</label>
+            <input type="date" id="event-date" required>
+
+            <label for="event-location">Location:</label>
+            <input type="text" id="event-location" required>
+
+            <label for="event-description">Description:</label>
+            <textarea id="event-description" required></textarea>
+
+            <label for="event-type">Event Type:</label>
+            <select id="event-type" required>
+                <option value="workshop">Workshop</option>
+                <option value="seminar">Seminar</option>
+                <option value="conference">Conference</option>
+            </select>
+
+            <label for="remaining-seats">Remaining Seats:</label>
+            <input type="number" id="remaining-seats" required>
+
+            <button type="submit">Create Event</button>
+        </form>
+    </main>
+
+    <!-- Firebase Integration -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKF0zZaovZxNxiSlRLXRDJX5p1z8NBSK8",
+            authDomain: "webtech-ffc13.firebaseapp.com",
+            projectId: "webtech-ffc13",
+            storageBucket: "webtech-ffc13.firebasestorage.app",
+            messagingSenderId: "246366752072",
+            appId: "1:246366752072:web:b6c3af8030192f9cb3777d",
+            measurementId: "G-DCTBJFS4LJ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Add an event listener to handle the form submission
+        document.getElementById('create-event-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            // Gather input values from the form
+            const eventName = document.getElementById('event-name').value;
+            const eventDate = document.getElementById('event-date').value;
+            const eventLocation = document.getElementById('event-location').value;
+            const eventDescription = document.getElementById('event-description').value;
+            const eventType = document.getElementById('event-type').value;
+            const remainingSeats = document.getElementById('remaining-seats').value;
+
+            // Construct a new event object using the form data
+            const newEvent = {
+                name: eventName,
+                date: eventDate,
+                location: eventLocation,
+                description: eventDescription,
+                type: eventType,
+                remainingSeats: parseInt(remainingSeats),
+                createdAt: new Date()
+            };
+
+            try {
+                // Add a new document with the event data to the Firestore database
+                await addDoc(collection(db, "events"), newEvent);
+
+                // Redirect the user to the event list page after successful submission
+                window.location.href = 'event-list.html';
+            } catch (error) {
+                console.error("Error adding event: ", error);
+            }
+        });
+    </script>
+</body>
+</html>
